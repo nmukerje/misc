@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         ClusterStates=['WAITING']
     )
     clusterIds=[k['Id'] for k in response['Clusters']]
-    print ("Found %d WAITING clusters : %s"%(len(clusterIds),clusterIds))
+    print ("Found %d clusters in WAITING state: %s"%(len(clusterIds),clusterIds))
     print ("Results: ")
     
     for clusterId in clusterIds:
