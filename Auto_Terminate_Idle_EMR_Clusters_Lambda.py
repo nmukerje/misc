@@ -1,6 +1,6 @@
 # AWS Lambda function to AutoTerminate Idle EMR Clusters
 #
-# ENVIRONMENT VARIABLES:
+# ENVIRONMENT VARIABLES to define for the Lambda function:
 #   LOOKBACK_TIME_IN_DAYS : 31
 #   IDLE_TIME_IN_MINS : 15 (should be intervals of 5 mins)
 #   HONOR_TERMINATION_PROTECTION : TRUE
