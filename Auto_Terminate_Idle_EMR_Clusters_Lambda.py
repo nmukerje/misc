@@ -55,7 +55,7 @@ def lambda_handler(event, context):
                     ) 
             
                 # Terminate EMR cluster
-                #emr.terminate_job_flows(JobFlowIds=[clusterId])
+                emr.terminate_job_flows(JobFlowIds=[clusterId])
                 print ("\tTerminated Cluster %s."%(clusterId))
         
         except Exception as e: 
