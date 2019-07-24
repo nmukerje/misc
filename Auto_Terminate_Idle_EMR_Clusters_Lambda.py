@@ -1,3 +1,10 @@
+# AWS Lambda function to AutoTerminate Idle EMR Clusters
+#
+# ENVIRONMENT VARIABLES:
+#   LOOKBACK_TIME_IN_DAYS : 31
+#   IDLE_TIME_IN_MINS : 15 (should be intervals of 5 mins)
+#   HONOR_TERMINATION_PROTECTION : TRUE
+#
 import json,boto3,os
 from datetime import datetime, timedelta
 
@@ -39,7 +46,8 @@ def lambda_handler(event, context):
             EndTime=datetime.now(),
             Period=1,Statistics=['Sum'])
     
-            # check that we have enough metrics and that AppsRunning is 0 for the idle time interval
+            # check that we have enough metrics for the idle time interval
+            # and that AppsRunning is 0 for the idle time interval
             if (len(response['Datapoints'])==idle_time_in_mins/5 and \
                 sum([k['Sum'] for k in response['Datapoints']])==0.0):
                 if cluster['Cluster']['TerminationProtected']==True:
