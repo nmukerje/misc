@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             # get cluster details - for Termination Protection flag
             cluster= emr.describe_cluster(ClusterId=clusterId)
         
-            # get last CW metrics for the cluster
+            # get last CW metrics for the cluster - Sum(AppsRunning)
             metric = cloudwatch.Metric('AWS/ElasticMapReduce','AppsRunning')
             response = metric.get_statistics(Dimensions=[
               {
