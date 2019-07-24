@@ -27,7 +27,6 @@ def lambda_handler(event, context):
         try: 
             # get cluster details - for Termination Protection flag
             cluster= emr.describe_cluster(ClusterId=clusterId)
-            #print (cluster)
         
             # get last CW metrics for the cluster
             metric = cloudwatch.Metric('AWS/ElasticMapReduce','AppsRunning')
@@ -39,7 +38,6 @@ def lambda_handler(event, context):
             ],StartTime=datetime.now() - timedelta(minutes=idle_time_in_mins),
             EndTime=datetime.now(),
             Period=1,Statistics=['Sum'])
-            #print (response)
     
             # check that we have enough metrics and that AppsRunning is 0 for the idle time interval
             if (len(response['Datapoints'])==idle_time_in_mins/5 and \
