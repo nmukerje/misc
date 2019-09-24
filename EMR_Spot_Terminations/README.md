@@ -1,4 +1,4 @@
-# Monitor EMR Spot Instance Terminations in CloudWatch Dashboard using AWS Lambda:
+# Monitor EMR Spot Instance Terminations in CloudWatch Dashboard using AWS Lambda
 
 
 ## Deploy a Lambda Function that will respond to EC2 Spot Termination Cloudwatch Events.
@@ -13,6 +13,6 @@ From the Cloudwatch console, setup a rule to trigger the lambda function on EC2 
 
 ## Build a Cloudwatch Widget specific for each EMR Cluster to monitor Spot Terminations.
 
-The final step to use build a Cloudwatch Metrics dashboard/widget to view the Spot Termination metrics:
+The final step to build a Cloudwatch Metrics dashboard/widget to view the Spot Termination metrics:
 
 ![Cloudwatch Metrics Dashboard](https://github.com/nmukerje/misc/blob/master/EMR_Spot_Terminations/cw_chart.png)
