@@ -1,7 +1,7 @@
 ##
 ## monitor_emr_spot_terminations_lambda.py: 
-##  Lambda function to respond the EC2 Spot Termination events
-##  and push to Cloudwatch metrics.
+##  Lambda function to respond to EC2 Spot Termination events
+##  and push metrics to Cloudwatch.
 ##
 import json, boto3
 from datetime import date
