@@ -1,4 +1,4 @@
-# Monitor EMR Spot Instance Terminations in CloudWatch Dashboard using AWS Lambda
+# Monitor EMR Spot Instance Terminations in a CloudWatch Dashboard using AWS Lambda
 
 
 ### Deploy a Lambda Function that will respond to EC2 Spot Termination Cloudwatch Events.
