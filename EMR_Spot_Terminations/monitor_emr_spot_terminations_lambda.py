@@ -1,4 +1,8 @@
-## monitor_emr_spot_terminations_lambda.py
+##
+## monitor_emr_spot_terminations_lambda.py: 
+##  Lambda function to respond the EC2 Spot Termination events
+##  and push to Cloudwatch metrics.
+##
 import json, boto3
 from datetime import date
 import datetime
@@ -21,7 +25,7 @@ def lambda_handler(event, context):
     print (str(tags))
 
     ## get cluster id
-    ## the tag of aws:elasticmapreduce:job-flow-id is the cluster id
+    ## the value of tag aws:elasticmapreduce:job-flow-id is the cluster id
     clusterId=[k['Value'] for k in tags if k['Key'] == 'aws:elasticmapreduce:job-flow-id']
     if len(clusterId) == 1:
         clusterId = clusterId[0]
@@ -29,7 +33,7 @@ def lambda_handler(event, context):
         print ("This EC2 instance is not part of an EMR Cluster.")
         return {'statusCode': 200 }
 
-    # push Metrics to CW
+    # push Metrics to CloudWatch
     cloudwatch.put_metric_data(
         MetricData=[{'MetricName': cw_metric_name,'Dimensions': [
             {
