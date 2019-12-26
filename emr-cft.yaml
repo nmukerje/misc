@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This Cloudformation template creates an EMR Instance Fleet cluster
+
+Parameters:
+  SubnetId1:
+    Description: Must be a valid public subnet ID
+    Default: subnet-512bfc27
+    Type: String
+  SubnetId2:
+    Description: Must be a valid public subnet ID
+    Default: subnet-66c82f3e
+    Type: String
+  SubnetId3:
+    Description: Must be a valid public subnet ID
+    Default: subnet-7fd4691b
+    Type: String
+  KeyName:
+    Description: Must be an existing Keyname
+    Default: vm_oregon
+    Type: AWS::EC2::KeyPair::KeyName
+  SecurityGroupId:
+    Description: SecurityGroup ID
+    Default: sg-05958862
+    Type: String
+
+Resources:
+
+  EMRClusterinstanceProfileRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role'
+      Path: /
+
+  EMRClusterinstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EMRClusterinstanceProfileRole
+
+  EMRServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'elasticmapreduce.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole'
+
+  EMRSparkInstanceFleetCluster:
+    Type: AWS::EMR::Cluster
+    Properties:
+      Name: Spark EMR Instance Fleet Cluster
+      JobFlowRole: !Ref EMRClusterinstanceProfile
+      ReleaseLabel: emr-5.28.0
+      ScaleDownBehavior: TERMINATE_AT_TASK_COMPLETION
+      LogUri: !Join [ '', [ 's3://aws-logs-', !Ref 'AWS::AccountId', '-', !Ref 'AWS::Region', '/elasticmapreduce/' ]]
+      ServiceRole: !Ref EMRServiceRole
+      Tags:
+        - Key: 'Name'
+          Value: Spark EMR Instance Fleet Cluster
+      VisibleToAllUsers: true
+      Applications:
+        - Name: Spark
+        - Name: Hive
+        - Name: Livy
+      EbsRootVolumeSize: 32
+      Instances:
+        AdditionalMasterSecurityGroups: [ !Ref SecurityGroupId ]
+        AdditionalSlaveSecurityGroups: [ !Ref SecurityGroupId ]
+        Ec2KeyName: !Ref KeyName
+        Ec2SubnetIds:
+          - !Ref SubnetId1
+          - !Ref SubnetId2
+          - !Ref SubnetId3
+        MasterInstanceFleet:
+          Name: 'Master Instance Fleet'
+          TargetOnDemandCapacity: 1
+          InstanceTypeConfigs:
+            - BidPriceAsPercentageOfOnDemandPrice: 100
+              InstanceType: m5.2xlarge
+              WeightedCapacity: 1
+        CoreInstanceFleet:
+          LaunchSpecifications:
+            SpotSpecification:
+              TimeoutAction: SWITCH_TO_ON_DEMAND
+              TimeoutDurationMinutes: 15
+          Name: 'Core Instance Fleet'
+          TargetSpotCapacity: 16
+          InstanceTypeConfigs:
+            - BidPriceAsPercentageOfOnDemandPrice: 100
+              InstanceType: r4.2xlarge
+              WeightedCapacity: 8
+            - BidPriceAsPercentageOfOnDemandPrice: 100
+              InstanceType: r5.2xlarge
+              WeightedCapacity: 8
+            - BidPriceAsPercentageOfOnDemandPrice: 100
+              InstanceType: r4.4xlarge
+              WeightedCapacity: 16
+            - BidPriceAsPercentageOfOnDemandPrice: 100
+              InstanceType: r5.4xlarge
+              WeightedCapacity: 16
+
+  EMRSparkInstanceTaskFleet:
+    Type: AWS::EMR::InstanceFleetConfig
+    Properties:
+      ClusterId: !Ref EMRSparkInstanceFleetCluster
+      InstanceFleetType: TASK
+      InstanceTypeConfigs:
+        - BidPriceAsPercentageOfOnDemandPrice: 100
+          InstanceType: r4.2xlarge
+          WeightedCapacity: 8
+        - BidPriceAsPercentageOfOnDemandPrice: 100
+          InstanceType: r5.2xlarge
+          WeightedCapacity: 8
+        - BidPriceAsPercentageOfOnDemandPrice: 100
+          InstanceType: r4.4xlarge
+          WeightedCapacity: 16
+        - BidPriceAsPercentageOfOnDemandPrice: 100
+          InstanceType: r5.4xlarge
+          WeightedCapacity: 16
+        - BidPriceAsPercentageOfOnDemandPrice: 100
+          InstanceType: r5.8xlarge
+          WeightedCapacity: 32
+      LaunchSpecifications:
+        SpotSpecification:
+          TimeoutAction: SWITCH_TO_ON_DEMAND
+          TimeoutDurationMinutes: 15
+      Name: "Task Fleet 1"
+      TargetSpotCapacity: 48
