@@ -22,7 +22,7 @@ spark-submit  --class main.scala.SparkKinesisTest Spark-Kinesis-Test-assembly-0.
 ```
 - Let the 1st batch complete and observe the checkpoints in the DynamoDB tables.
 - For the 2nd batch, observe from the Spark Streaming UI and kill the application when the batch starts reading records.
-- The KCL DynamoDB table will have the latest read offsets while the checkpoint table will have the last processed offsets from the previous batch.
-- Now restart the application, the last processed offsets from the the checkpoint table will be written back to the  KCL DynamoDB table.
+- The KCL DynamoDB table will have the latest read offsets from the 2nd batch while the checkpoint table will have the last processed offsets from the previous batch.
+- Now restart the application, the last processed offsets from the the checkpoint table will be written back to the  KCL DynamoDB table and the 2nd batch will be re-read to be processed.
 
 This allows graceful failure of Spark Dstreams Applications without loss of data (without using HDFS or S3 checkpointing) and ensures at least once processing of the data in the Kinesis Datastream.
