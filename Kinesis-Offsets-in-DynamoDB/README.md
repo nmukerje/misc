@@ -1,5 +1,5 @@
 
-This sample code demonstrates a simple solution to store Kinesis processed checkpoints (offsets) in DynamoDB.
+The sample code demonstrates a simple solution to store Kinesis processed checkpoints (offsets) in DynamoDB.
 
 ## PreReqs:
 
