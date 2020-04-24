@@ -1,0 +1,89 @@
+package main.scala
+
+
+import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream
+import main.scala.DynamoDBUtils.{saveCheckPoint,restoreCheckPoint}
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.internal.Logging
+import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.{Milliseconds}
+import org.apache.spark.streaming.kinesis.KinesisInputDStream
+import org.apache.spark.streaming.{StreamingContext, Time}
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.SparkConf
+
+object SparkKinesisTest extends Logging {
+
+
+  def main(args: Array[String]) {
+    // Check that all required args were passed in.
+    val appName = "spark-streaming-demo"
+    val streamName = "spark-streaming-demo"
+    val endpointUrl = "https://kinesis.us-west-2.amazonaws.com"
+
+   val numShards = 2
+
+    println("numShards : "+numShards)
+    val numStreams = numShards
+
+    val batchInterval = Milliseconds(30000)
+    val kinesisCheckpointInterval = batchInterval
+
+    val regionName = "us-west-2"
+
+    val sparkConfig = new SparkConf().setAppName("Spark-Kinesis-Demo")
+    val ssc = new StreamingContext(sparkConfig, batchInterval)
+
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    Logger.getLogger("akka").setLevel(Level.ERROR)
+    val spark = SparkSession.builder().config(sparkConfig).appName("Spark-Kinesis-Demo").getOrCreate()
+    restoreCheckPoint(appName)
+
+    val kinesisStreams = (0 until numStreams).map { i =>
+      KinesisInputDStream.builder
+        .streamingContext(ssc)
+        .streamName(streamName)
+        .endpointUrl(endpointUrl)
+        .regionName(regionName)
+        .initialPositionInStream(InitialPositionInStream.TRIM_HORIZON)
+        .checkpointAppName(appName)
+        .checkpointInterval(kinesisCheckpointInterval)
+        .storageLevel(StorageLevel.MEMORY_AND_DISK_2)
+        .build()
+    }
+
+    // Union all the streams
+    val unionStreams = ssc.union(kinesisStreams)
+    val items = unionStreams.flatMap(byteArray => new String(byteArray).split("\n"))
+
+//    unionStreams.foreachRDD( rdd => {
+//      System.out.println("# events = " + rdd.count())
+//      System.out.println("# events #1 = " + rdd.first())
+//    })
+    items.foreachRDD((rdd:RDD[String],time:Time) => {
+      import spark.implicits._
+
+      if (rdd.count() > 0) {
+        try {
+
+          //val recordsDS = spark.read.json(rdd)
+          val df = rdd.toDF()
+          //recordsDS.createOrReplaceTempView("records")
+          System.out.println("Count Records : "+df.count())
+
+          // Simulate a slow write
+          Thread.sleep(15000)
+
+          df.coalesce(1).write.mode("append").parquet("s3://neilawstmp2/streaming-output/parquet/")
+          saveCheckPoint(appName)
+        }catch {
+          case e: Exception => println("Empty stream" + e)
+        }
+      }
+    })
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
+}
