@@ -1,4 +1,4 @@
-# Checkpointing in DynamoDB for Spark Dstream applications reading from Kinesis Datastreams.
+# Checkpointing in DynamoDB for Spark Dstream applications reading from Kinesis Data Streams.
 
 The sample code demonstrates a simple solution to store Kinesis processed checkpoints (offsets) in DynamoDB.
 
