@@ -3,7 +3,7 @@ The sample code demonstrates a simple solution to store Kinesis processed checkp
 
 ## PreReqs:
 
-* Create a DynamoDB table 'spark-streaming-demo' with HASH key 'leaseKey' and RANGE key 'batch'. This table essentially serves as a clone of the DynamoDB table that the Kinesis Consumer writes.
+* Create a DynamoDB table 'spark-streaming-demo' with HASH key 'leaseKey' and RANGE key 'batch'. This table essentially serves as a clone of the DynamoDB table that the Kinesis Consumer Library (KCL) creates.
 * Create a Kinesis datastream called 'spark-streaming-demo' is us-west-2.
 
 ## How it works:
