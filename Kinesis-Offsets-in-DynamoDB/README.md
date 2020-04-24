@@ -10,7 +10,7 @@ The sample code demonstrates a simple solution to store Kinesis processed checkp
 ## How it works:
 
 - The sample code reads from the Kinesis datastream in 30 second batches.
-- For each batch read, the KCL will store checkpoints in the DynamoDB table - spark-streaming-demo.
+- For each batch read, the KCL will store read checkpoints in the DynamoDB table - spark-streaming-demo.
 - After processing, the 'DynamoDBUtils.saveCheckPoint' will copy the checkpoint over to the checkpoint DynamoDB table - spark-streaming-demo-checkpoint.
 - When the application is restarted, the 'DynamoDBUtils.restoreCheckPoint' will copy the last processed checkpoint back to the orignal KCL DynamoDB table to ensure that reading resumes from after the data last processed.
 
