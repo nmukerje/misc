@@ -38,6 +38,8 @@ object SparkKinesisTest extends Logging {
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("akka").setLevel(Level.ERROR)
     val spark = SparkSession.builder().config(sparkConfig).appName("Spark-Kinesis-Demo").getOrCreate()
+    
+    // ### Restore From Checkpoint when the Application starts.
     restoreCheckPoint(appName)
 
     val kinesisStreams = (0 until numStreams).map { i =>
@@ -76,6 +78,8 @@ object SparkKinesisTest extends Logging {
           Thread.sleep(15000)
 
           df.coalesce(1).write.mode("append").parquet("s3://neilawstmp2/streaming-output/parquet/")
+          
+          //### Save to Checkpoint for each Batch.
           saveCheckPoint(appName)
         }catch {
           case e: Exception => println("Empty stream" + e)
