@@ -11,8 +11,8 @@
 
 DynamoDB table format:
 
-First Header | Second Header
------------- | -------------
+objectKey | eventTime | bucket | status |
+------------ | -------------| ------------ | -------------|
 
 Notes:
 
