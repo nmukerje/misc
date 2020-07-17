@@ -9,12 +9,12 @@
 1. Lambda Function : The lambda function listens to S3 file drop events and pushes the events to a DynamoDB table ([s3-event-processor.py](lambda/s3-event-processor.py))
 2. Spark Code : The PySpark code consumes all PENDING records from DynamoDB each run and processes them. ([s3_events_batch_process_pipeline.py](spark/s3_events_batch_process_pipeline.py))
 
-DynamoDB table format:
+### DynamoDB table format:
 
 objectKey | eventTime | bucket | status |
 ------------ | -------------| ------------ | -------------|
 
-Notes:
+### Notes:
 
 - DynamoDB is a good option here being serverless and can also help in reporting on events but SQS, Kinesis DataStreams, Kafka etc. could also be effectively used here.
 - The DynamoDB table is already lean with only file references stored but setting appropriate TTLs in the DynamoDB table can ensure that the table stays lean. [DynamoDB TTL](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html)
