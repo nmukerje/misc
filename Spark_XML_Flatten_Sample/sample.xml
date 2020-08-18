@@ -1,0 +1,32 @@
+<root>
+<record attribute1="AAAA">
+    <field1>1</field1>
+    <field2>three</field2>
+    <ns>
+       <nf1>nf1</nf1>
+       <nf2>nf2</nf2>
+       <nf3>nf3</nf3>
+    </ns>
+    <nls>
+       <ns2>	
+          <nf11>nf11</nf11>
+          <nf12>nf12</nf12>
+       </ns2>
+       <ns2>	
+          <nf13>nf13</nf13>
+       </ns2>
+    </nls>
+</record>
+<record attribute1="AAAA">
+    <field1>2</field1>
+    <field2>three</field2>
+</record>
+<record attribute1="AAAA">
+    <field1>3</field1>
+    <field2>three</field2>
+</record>
+<record attribute1="AAAA">
+    <field1>4</field1>
+    <field2>three</field2>
+</record>
+</root>
