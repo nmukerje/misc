@@ -1,0 +1,18 @@
+<root>
+<record>
+    <id>1</id>
+    <nls>
+       <ns2>
+          <nf11 xsi:nil="true"/>
+          <nf12>nf12</nf12>
+       </ns2>
+       <ns2>
+          <nf11>nf11</nf11>
+          <nf13>nf13</nf13>
+       </ns2>
+    </nls>
+</record>
+<record>
+    <id>2</id>
+</record>
+</root>
