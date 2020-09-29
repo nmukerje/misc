@@ -28,7 +28,7 @@
             }
           }
         ],
-        "ServiceRole": "Hudi-Workshop-105-EMRServiceRole-MA9EB3G37SJ",
+        "ServiceRole": "<EMR Service Role>",
         "JobFlowRole": "EMR_EC2_DefaultRole",
         "LogUri": "s3n://aws-logs-<account-id>-us-east-2/elasticmapreduce/",
         "Instances": {
