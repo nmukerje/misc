@@ -1,4 +1,5 @@
 ## glue_redshift_sql.py
+## executes a Redshift SQL Script.
 import boto3,time
 import sys
 import os
