@@ -1,0 +1,170 @@
+{
+  "Comment": "An example of the Amazon States Language.",
+  "StartAt": "Launch_EMR_Cluster",
+  "States": {
+    "Launch_EMR_Cluster": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::elasticmapreduce:createCluster.sync",
+      "Parameters": {
+        "Name": "Sqoop-Spark-Cluster",
+        "VisibleToAllUsers": true,
+        "ReleaseLabel": "emr-5.30.1",
+        "Applications": [
+          {
+            "Name": "Hadoop"
+          },
+          {
+            "Name": "Sqoop"
+          },
+          {
+            "Name": "Spark"
+          }
+        ],
+        "BootstrapActions": [
+          {
+            "Name": "Upgrade_Kite",
+            "ScriptBootstrapAction": {
+              "Path": "s3://<s3_bucket>/sqoop_output/emr_bootstrap.sh"
+            }
+          }
+        ],
+        "ServiceRole": "Hudi-Workshop-105-EMRServiceRole-MA9EB3G37SJ",
+        "JobFlowRole": "EMR_EC2_DefaultRole",
+        "LogUri": "s3n://aws-logs-<account-id>-us-east-2/elasticmapreduce/",
+        "Instances": {
+          "KeepJobFlowAliveWhenNoSteps": true,
+          "Ec2KeyName": "<keypair>",
+          "Ec2SubnetId": "<subnet>",
+          "InstanceFleets": [
+            {
+              "InstanceFleetType": "MASTER",
+              "Name": "MASTER",
+              "TargetOnDemandCapacity": 1,
+              "InstanceTypeConfigs": [
+                {
+                  "InstanceType": "m4.xlarge"
+                }
+              ]
+            },
+            {
+              "InstanceFleetType": "CORE",
+              "Name": "CORE",
+              "TargetOnDemandCapacity": 1,
+              "InstanceTypeConfigs": [
+                {
+                  "InstanceType": "m4.xlarge"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "Next": "Sqoop_Step"
+    },
+    "Sqoop_Step": {
+      "Type": "Task",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error-info",
+          "Next": "Terminate_EMR_Cluster"
+        }
+      ],
+      "ResultPath": "$.Result",
+      "Resource": "arn:aws:states:::elasticmapreduce:addStep.sync",
+      "Parameters": {
+        "ClusterId.$": "$.ClusterId",
+        "Step": {
+          "Name": "Sqoop Import",
+          "ActionOnFailure": "CONTINUE",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "sqoop",
+              "import",
+              "--connect",
+              "<jdbc url>",
+              "--username",
+              "master",
+              "--P",
+              "<password file>",
+              "--delete-target-dir",
+              "--driver",
+              "org.mariadb.jdbc.Driver",
+              "--table",
+              "SALES_ORDER",
+              "--target-dir",
+              "s3n://<s3_bucket>/sqoop_output/sales_order/"
+            ]
+          }
+        }
+      },
+      "Next": "Glue Redshift_Step_1"
+    },
+    "Glue Redshift_Step_1": {
+      "Type": "Task",
+      "ResultPath": "$.Result",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "redshift_execute_sql",
+        "Arguments": {
+          "--SQL_SCRIPT_FILE": "s3://<s3_bucket>/sqoop_output/redshift-sample-script.sql"
+        }
+      },
+      "Next": "Spark_Step"
+    },
+    "Spark_Step": {
+      "Type": "Task",
+      "ResultPath": "$.Result",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error-info",
+          "Next": "Terminate_EMR_Cluster"
+        }
+      ],
+      "Resource": "arn:aws:states:::elasticmapreduce:addStep.sync",
+      "Parameters": {
+        "ClusterId.$": "$.ClusterId",
+        "Step": {
+          "Name": "Spark Transform Step",
+          "ActionOnFailure": "CONTINUE",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "s3://<s3_bucket>/sqoop_output/spark_transform_step.py"
+            ]
+          }
+        }
+      },
+      "Next": "Glue Redshift_Step_2"
+    },
+    "Glue Redshift_Step_2": {
+      "Type": "Task",
+      "ResultPath": "$.Result",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "redshift_execute_sql",
+        "Arguments": {
+          "--SQL_SCRIPT_FILE": "s3://<s3_bucket>/sqoop_output/redshift-sample-script-2.sql"
+        }
+      },
+      "Next": "Terminate_EMR_Cluster"
+    },
+    "Terminate_EMR_Cluster": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::elasticmapreduce:terminateCluster.sync",
+      "Parameters": {
+        "ClusterId.$": "$.ClusterId"
+      },
+      "End": true
+    }
+  }
+}
