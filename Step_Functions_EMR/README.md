@@ -1,7 +1,7 @@
 ### Pre-requisites:
 
 * Launch an RDS MySQL Database
-* And load MySQL schema.
+* And load MySQL schema - salesdb.sql.
 
 ### Files:
 
