@@ -6,8 +6,8 @@
 We will explore setting Yarn Node labels on an EMR cluster to meet the following goals for Application Masters:
 
 - <b>Stability</b> : Place Application Masters on On-Demand Instances.
-- Concurrency : Allow higher concurrency of Application Masters during peak time by scaling out OnDemand nodes.
-- Elasticity : And save costs by scaling in the cluster when the demand subsides.
+- <b>Concurrency</b> : Allow higher concurrency of Application Masters during peak time by scaling out OnDemand nodes.
+- <b>Elasticity</b> : And save costs by scaling in the cluster when the demand subsides.
 
 The config `yarn.nodemanager.node-labels.provider` allows us to use a script on each node that detects whether the node is a Spot instance or an OnDemand instance and set Node Labels to SPOT or ON_DEMAND respectively. The Yarn config `yarn.node-labels.am.default-node-label-expression` allows us to specify to place Applications Masters on the ON_DEMAND node labels only.
 
