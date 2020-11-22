@@ -72,7 +72,9 @@ sudo -u yarn yarn rmadmin -addToClusterNodeLabels "SPOT(exclusive=false),ON_DEMA
 
 ### Results
 
+Now if we launch a cluster with the above config and bootstrap action, we should see the Yarn Node Labels set correctly.
 
+![yarn_node_labels](images/yarn_node_labels.png)
 
 
 
