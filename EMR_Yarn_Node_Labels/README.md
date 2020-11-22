@@ -39,7 +39,7 @@ Here is the configuration json to set the right properties on yarn-site.xml.
 
 The main boostrap script is in python and is placed in S3.
 
-#### s3://<bucket>/yarn_node_labels/getNodeLabels.py
+#### getNodeLabels.py
 
 ```
 #!/usr/bin/python3
@@ -56,12 +56,13 @@ with open(k) as f:
 
 The step is placed on the EMR cluster to add the labels to Yarn on cluster startup.
 
-#### s3://<bucket>/yarn_node_labels/addNodeLabels.sh
+#### addNodeLabels.sh
 
 ```
 #!/bin/bash
 sudo -u yarn yarn rmadmin -addToClusterNodeLabels "SPOT(exclusive=false),ON_DEMAND(exclusive=false)"
 ```
+
 
 
 
