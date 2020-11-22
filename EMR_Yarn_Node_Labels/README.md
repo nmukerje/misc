@@ -29,8 +29,7 @@ Here is the configuration json to set the right properties on yarn-site.xml.
          "yarn.nodemanager.node-labels.provider":"script",
          "yarn.nodemanager.node-labels.provider.script.path":"/home/hadoop/getNodeLabels.py",
          "yarn.node-labels.enabled":"true",
-         "yarn.node-labels.am.default-node-label-expression":"ON_DEMAND",
-         "yarn.nodemanager.node-labels.provider.configured-node-partition":"ON_DEMAND,SPOT"
+         "yarn.node-labels.am.default-node-label-expression":"ON_DEMAND"
       }
    },
    {
