@@ -1,5 +1,5 @@
 
-# Set Yarn Node labels on an EMR Cluster
+# Setting Yarn Node labels on an EMR Cluster to place Application Masters on OnDemand instances 
 
 ### Overview
 
@@ -62,6 +62,8 @@ The step is placed on the EMR cluster to add the labels to Yarn on cluster start
 #!/bin/bash
 sudo -u yarn yarn rmadmin -addToClusterNodeLabels "SPOT(exclusive=false),ON_DEMAND(exclusive=false)"
 ```
+
+### Results
 
 
 
