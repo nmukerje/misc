@@ -5,7 +5,7 @@
 
 We will explore setting Yarn Node labels on an EMR cluster to meet the following goals for Application Masters:
 
-- <b>Stability</b> : Place Application Masters on On-Demand Instances.
+- <b>Stability</b> : Place Application Masters on On-Demand Instances only.
 - <b>Concurrency</b> : Allow higher concurrency of Application Masters during peak time by scaling out OnDemand nodes.
 - <b>Elasticity</b> : And save costs by scaling in the cluster when the demand subsides.
 
