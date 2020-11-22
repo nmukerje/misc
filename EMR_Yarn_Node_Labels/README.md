@@ -37,7 +37,7 @@ Here is the configuration json to set the right properties on yarn-site.xml.
 
 ### Bootstrap Script
 
-The main boostrap script is in python and is placed in S3.
+The main work to detect the instance type and return the Node Labels is done in python and is placed in S3 and is invoked by our boostrap script.
 
 #### getNodeLabels.py
 
@@ -49,6 +49,13 @@ with open(k) as f:
     response = json.load(f)
     if (response['instanceRole'] in ['core','task']):
        print (f"NODE_PARTITION:{response['marketType'].upper()}")
+```
+
+#### getNodeLabels_bootstrap.sh
+```
+#!/bin/bash
+aws s3 cp s3://<bucket>/yarn_nodel_labels/getNodeLabels.py /home/hadoop
+chmod +x /home/hadoop/getNodeLabels.py
 ```
 
 ### Step Script
