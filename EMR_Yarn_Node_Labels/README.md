@@ -5,7 +5,7 @@
 
 We will explore setting Yarn Node labels on an EMR cluster to meet the following goals for Application Masters:
 
-- Stability : Place Application Masters on On-Demand Instances.
+- <b>Stability</b> : Place Application Masters on On-Demand Instances.
 - Concurrency : Allow higher concurrency of Application Masters during peak time by scaling out OnDemand nodes.
 - Elasticity : And save costs by scaling in the cluster when the demand subsides.
 
@@ -30,13 +30,6 @@ Here is the configuration json to set the right properties on yarn-site.xml.
          "yarn.nodemanager.node-labels.provider.script.path":"/home/hadoop/getNodeLabels.py",
          "yarn.node-labels.enabled":"true",
          "yarn.node-labels.am.default-node-label-expression":"ON_DEMAND"
-      }
-   },
-   {
-      "classification":"capacity-scheduler",
-      "Properties":{
-         "yarn.scheduler.capacity.root.accessible-node-labels.ON_DEMAND.capacity":"100",
-         "yarn.scheduler.capacity.root.default.accessible-node-labels.ON_DEMAND.capacity":"100"
       }
    }
 ]
