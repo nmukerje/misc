@@ -11,7 +11,7 @@ We will explore setting Yarn Node labels on an EMR cluster to meet the following
 
 The config `yarn.nodemanager.node-labels.provider` allows us to use a script on each node that detects whether the node is a Spot instance or an OnDemand instance and set Node Labels to SPOT or ON_DEMAND respectively. The Yarn config `yarn.node-labels.am.default-node-label-expression` allows us to specify to place Applications Masters on the ON_DEMAND node labels only.
 
-This solution consists of
+This solution consists of the following:
 
 1. Configuration : Setting the right configuration on yarn-site.xml to enable node labels to bootup.
 2. Bootstrap Script : To detect and set Node Labels correctly for On-Demand and Spot Instances.
