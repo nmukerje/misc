@@ -3,7 +3,7 @@
 
 ### Overview
 
-We will explore setting Yarn Node labels on an EMR cluster to meet the following goals:
+We will explore setting Yarn Node labels on an EMR cluster to meet the following goals for Application Masters:
 
 - Stability : Place Application Masters on On-Demand Instances.
 - Concurrency : Allow higher concurrency of Application Masters during peak time by scaling out OnDemand nodes.
