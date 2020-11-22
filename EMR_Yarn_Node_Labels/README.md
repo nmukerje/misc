@@ -47,7 +47,6 @@ import json
 k='/mnt/var/lib/info/extraInstanceData.json'
 with open(k) as f:
     response = json.load(f)
-    #print ((response['instanceRole'],response['marketType']))
     if (response['instanceRole'] in ['core','task']):
        print (f"NODE_PARTITION:{response['marketType'].upper()}")
 ```
