@@ -1,0 +1,256 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This Cloudformation template creates an EMR Instance Group cluster with Classic AutoScaling
+
+Parameters:
+  Subnet:
+    Description: Must be a valid public subnet ID
+    Default: subnet-66c82f3e
+    Type: String
+  KeyName:
+    Description: Must be an existing Keyname
+    Default: vm_oregon
+    Type: AWS::EC2::KeyPair::KeyName
+  SecurityGroupId:
+    Description: SecurityGroup ID
+    Default: sg-05958862
+    Type: String
+  MaxCoreSize:
+    Type: Number
+    Default: 10
+  CoreInstanceType:
+    Type: String
+    Default: m5.xlarge
+  TaskInstanceType:
+    Type: String
+    Default: m5.xlarge
+  CoreStorage:
+    Type: Number
+    Default: 200
+  TaskStorage:
+    Type: Number
+    Default: 200
+  ## Instance counts and bounds
+  InitialCoreSize:
+    Type: Number
+    Default: 2
+  ## Instance types
+  MasterInstanceType:
+    Type: String
+    Default: m5.xlarge
+  InitialTaskSize:
+    Type: Number
+    Default: 0
+  MaxTaskSize:
+    Type: Number
+    Default: 10
+  SpotPrice:
+    Type: Number
+    Default: 0 # set to 0 for on-demand
+
+
+Conditions:
+    WithSpotPrice:
+        !Not [!Equals [0, !Ref SpotPrice]]
+
+Resources:
+
+  AutoscalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+        AssumeRolePolicyDocument:
+            Statement:
+                - Effect: Allow
+                  Action: sts:AssumeRole
+                  Principal:
+                      Service:
+                          - elasticmapreduce.amazonaws.com
+                          - application-autoscaling.amazonaws.com
+        ManagedPolicyArns:
+            - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole
+
+  EMRClusterinstanceProfileRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role'
+      Path: /
+
+  EMRClusterinstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EMRClusterinstanceProfileRole
+
+  EMRServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'elasticmapreduce.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole'
+
+  Cluster:
+    Type: AWS::EMR::Cluster
+    Properties:
+      Name: Spark EMR Instance Group Cluster
+      JobFlowRole: !Ref EMRClusterinstanceProfile
+      ReleaseLabel: emr-5.28.0
+      ScaleDownBehavior: TERMINATE_AT_TASK_COMPLETION
+      LogUri: !Join [ '', [ 's3://aws-logs-', !Ref 'AWS::AccountId', '-', !Ref 'AWS::Region', '/elasticmapreduce/' ]]
+      ServiceRole: !Ref EMRServiceRole
+      Tags:
+        - Key: 'Name'
+          Value: Spark EMR Instance Fleet Cluster
+      VisibleToAllUsers: true
+      Applications:
+        - Name: Spark
+        - Name: Hive
+        - Name: Livy
+      EbsRootVolumeSize: 32
+      AutoScalingRole: !Ref AutoscalingRole
+      Instances:
+        AdditionalMasterSecurityGroups: [ !Ref SecurityGroupId ]
+        AdditionalSlaveSecurityGroups: [ !Ref SecurityGroupId ]
+        Ec2KeyName: !Ref KeyName
+        Ec2SubnetId : !Ref Subnet
+        MasterInstanceGroup:
+          InstanceCount: 1
+          InstanceType: !Ref MasterInstanceType
+          Market: ON_DEMAND
+          Name: MasterInstance
+        CoreInstanceGroup:
+          InstanceCount: !Ref InitialCoreSize
+          InstanceType: !Ref CoreInstanceType
+          Market: ON_DEMAND
+          Name: CoreInstance
+
+          EbsConfiguration:
+              EbsBlockDeviceConfigs:
+                  - VolumeSpecification:
+                        SizeInGB: !Ref CoreStorage
+                        VolumeType: gp2
+                    VolumesPerInstance: 1
+              EbsOptimized: true
+
+          AutoScalingPolicy:
+              Constraints:
+                  MinCapacity: 1
+                  MaxCapacity: !Ref MaxCoreSize
+
+              Rules:
+                  - Name: CoreNodeScaleOut
+                    Description: "Core node scale-out based on HDFS utilization"
+                    Action:
+                        SimpleScalingPolicyConfiguration:
+                            AdjustmentType: CHANGE_IN_CAPACITY
+                            ScalingAdjustment: 1
+                            CoolDown: 300
+                    Trigger:
+                        CloudWatchAlarmDefinition:
+                            ComparisonOperator: GREATER_THAN
+                            EvaluationPeriods: 1
+                            MetricName: HDFSUtilization
+                            Namespace: AWS/ElasticMapReduce
+                            Period: 300
+                            Threshold: 80
+                            Statistic: AVERAGE
+                            Unit: PERCENT
+                            Dimensions:
+                                - Key: JobFlowId
+                                  Value: "${emr.clusterId}"
+
+
+  TaskInstanceGroupConfig:
+      Type: AWS::EMR::InstanceGroupConfig
+      Properties:
+          Name: TaskInstance
+          InstanceRole: TASK
+          JobFlowId: !Ref Cluster
+          InstanceCount: !Ref InitialTaskSize
+          InstanceType: !Ref TaskInstanceType
+          Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
+          BidPrice: !If [WithSpotPrice, !Ref SpotPrice, !Ref "AWS::NoValue"]
+
+          EbsConfiguration:
+              EbsBlockDeviceConfigs:
+                  - VolumeSpecification:
+                        SizeInGB: !Ref TaskStorage
+                        VolumeType: gp2
+                    VolumesPerInstance: 1
+              EbsOptimized: true
+
+          AutoScalingPolicy:
+              Constraints:
+                  MinCapacity: 0
+                  MaxCapacity: !Ref MaxTaskSize
+              Rules:
+                  - Name: TaskNodeScaleOut
+                    Description: "Task node scale-out based on memory utilization"
+                    Action:
+                        SimpleScalingPolicyConfiguration:
+                            AdjustmentType: CHANGE_IN_CAPACITY
+                            ScalingAdjustment: 1
+                            CoolDown: 300
+                    Trigger:
+                        CloudWatchAlarmDefinition:
+                            ComparisonOperator: LESS_THAN
+                            EvaluationPeriods: 1
+                            MetricName: YARNMemoryAvailablePercentage
+                            Namespace: AWS/ElasticMapReduce
+                            Period: 300
+                            Threshold: 20
+                            Statistic: AVERAGE
+                            Unit: PERCENT
+                            Dimensions:
+                                - Key: JobFlowId
+                                  Value: "${emr.clusterId}"
+
+                  - Name: TaskNodeScaleIn
+                    Description: "Task node scale-in based on memory utilization"
+                    Action:
+                        SimpleScalingPolicyConfiguration:
+                            AdjustmentType: CHANGE_IN_CAPACITY
+                            ScalingAdjustment: -1
+                            CoolDown: 300
+                    Trigger:
+                        CloudWatchAlarmDefinition:
+                            ComparisonOperator: GREATER_THAN
+                            EvaluationPeriods: 1
+                            MetricName: YARNMemoryAvailablePercentage
+                            Namespace: AWS/ElasticMapReduce
+                            Period: 300
+                            Threshold: 75
+                            Statistic: AVERAGE
+                            Unit: PERCENT
+                            Dimensions:
+                                - Key: JobFlowId
+                                  Value: "${emr.clusterId}"
+
+
+Outputs:
+    ClusterDNS:
+        Description: EMR Cluster DNS
+        Value: !GetAtt Cluster.MasterPublicDNS
+
+    ClusterID:
+        Description: EMR Cluster ID
+        Value: !Ref Cluster
