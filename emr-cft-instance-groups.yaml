@@ -16,6 +16,10 @@ Parameters:
     Description: SecurityGroup ID
     Default: sg-05958862
     Type: String
+  EmrServiceSecurityGroupId:
+      Description: SecurityGroup ID
+      Default: sg-05958862
+      Type: String
   MaxCoreSize:
     Type: Number
     Default: 10
@@ -130,6 +134,7 @@ Resources:
       Instances:
         AdditionalMasterSecurityGroups: [ !Ref SecurityGroupId ]
         AdditionalSlaveSecurityGroups: [ !Ref SecurityGroupId ]
+        ServiceAccessSecurityGroup: [ !Ref EmrServiceSecurityGroupId ]
         Ec2KeyName: !Ref KeyName
         Ec2SubnetId : !Ref Subnet
         MasterInstanceGroup:
