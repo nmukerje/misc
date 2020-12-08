@@ -6,7 +6,7 @@ Description: >
 Parameters:
   Subnet:
     Description: Must be a valid public subnet ID
-    Default: subnet-66c82f3e
+    Default: subnet-0bb5fef97a9e85df4
     Type: String
   KeyName:
     Description: Must be an existing Keyname
@@ -18,7 +18,7 @@ Parameters:
     Type: String
   EmrServiceSecurityGroupId:
       Description: SecurityGroup ID
-      Default: sg-05958862
+      Default: sg-0396f5fd2bc03d485
       Type: String
   MaxCoreSize:
     Type: Number
@@ -52,6 +52,14 @@ Parameters:
   SpotPrice:
     Type: Number
     Default: 0 # set to 0 for on-demand
+  EmrMasterSecurityGroupId:
+      Description: SecurityGroup ID
+      Default: sg-0b7927188223221f3
+      Type: String
+  EmrSlaveSecurityGroupId:
+      Description: SecurityGroup ID
+      Default: sg-0a6b5dec336e55d7c
+      Type: String
 
 
 Conditions:
@@ -134,7 +142,9 @@ Resources:
       Instances:
         AdditionalMasterSecurityGroups: [ !Ref SecurityGroupId ]
         AdditionalSlaveSecurityGroups: [ !Ref SecurityGroupId ]
-        ServiceAccessSecurityGroup: [ !Ref EmrServiceSecurityGroupId ]
+        EmrManagedMasterSecurityGroup: !Ref EmrMasterSecurityGroupId
+        EmrManagedSlaveSecurityGroup: !Ref EmrSlaveSecurityGroupId
+        ServiceAccessSecurityGroup: !Ref EmrServiceSecurityGroupId
         Ec2KeyName: !Ref KeyName
         Ec2SubnetId : !Ref Subnet
         MasterInstanceGroup:
