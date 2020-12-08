@@ -60,6 +60,9 @@ Parameters:
       Description: SecurityGroup ID
       Default: sg-0a6b5dec336e55d7c
       Type: String
+  Bucket:
+    Description: Bucket to pull the bootstrap scripts from
+    Type: String
 
 
 Conditions:
@@ -137,6 +140,10 @@ Resources:
         - Name: Spark
         - Name: Hive
         - Name: Livy
+      BootstrapActions:
+        - Name: install-bootstrap
+          ScriptBootstrapAction:
+            Path: !Sub s3://${bucket}/bootstrap/install-tools.sh
       EbsRootVolumeSize: 32
       AutoScalingRole: !Ref AutoscalingRole
       Instances:
