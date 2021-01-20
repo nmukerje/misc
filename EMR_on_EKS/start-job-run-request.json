@@ -1,0 +1,32 @@
+{
+  "name": "Test_Spark_Job",
+  "executionRoleArn": "arn:aws:iam::<account>:role/EMR_EKS_Job_Execution_Role",
+  "releaseLabel": "emr-6.2.0-latest",
+  "jobDriver": {
+    "sparkSubmitJobDriver": {
+      "entryPoint": "s3://<bucket>/spark-scripts/pi.py",
+      "entryPointArguments": [],
+       "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=2G --conf spark.executor.cores=2 --conf spark.driver.cores=1"
+    }
+  },
+  "configurationOverrides": {
+    "applicationConfiguration": [
+      {
+        "classification": "spark-defaults",
+        "properties": {
+          "spark.driver.memory":"2G"
+         }
+      }
+    ],
+    "monitoringConfiguration": {
+      "persistentAppUI": "ENABLED",
+      "cloudWatchMonitoringConfiguration": {
+        "logGroupName": "emr_eks_spark_jobs",
+        "logStreamNamePrefix": "emr-on-eks-0219-05"
+      },
+      "s3MonitoringConfiguration": {
+        "logUri": "s3://<bucket>/emr_eks_s3_logs/emr-on-eks-0219-05/"
+      }
+    }
+  }
+}
