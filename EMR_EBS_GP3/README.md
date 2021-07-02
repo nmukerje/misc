@@ -1,8 +1,6 @@
 
 ### Switch your EMR Cluster GP2 volumes to GP3
 
-Step 1:
-
 Ensure that the EMR Cluster has GP2 volumes attached. Attach the bootstrap script `switch_gp2_to_gp3.sh` to your EMR Cluster. 
 
 ```
