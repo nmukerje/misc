@@ -20,6 +20,6 @@ done
 
 ``` 
 
-The scripts detects the gp2 volumes attached to your EMR Cluster and invoked the commands to switch them to gp3.
+The scripts detects the gp2 volumes attached to your EMR Cluster and invokes the commands to switch them to gp3.
 
 Note: You can change it but the script does not override the baseline gp3 throughput and IOPS settings so you get the minimum 125MB/s and 3000 IOPs per volume.
