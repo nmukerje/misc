@@ -1,12 +1,9 @@
 
 ### Switch your EMR Cluster gp2 volumes to gp3
 
-Ensure that the EMR Cluster has gp2 volumes attached. Attach the bootstrap script `switch_gp2_to_gp3.sh` to your EMR Cluster. 
-
-
 >  gp3 is the next-generation general purpose SSD volumes for Amazon Elastic Block Store (Amazon EBS) that enable customers to provision performance independent of storage capacity and provides up to 20% lower price-point per GB than existing gp2 volumes. With gp3 volumes, customers can scale IOPS (input/output operations per second) and throughput without needing to provision additional block storage capacity, and pay only for the resources they need.  
 
-
+Ensure that the EMR Cluster has gp2 volumes attached. Attach the bootstrap script `switch_gp2_to_gp3.sh` to your EMR Cluster. 
 
 ```
 #!/bin/bash
