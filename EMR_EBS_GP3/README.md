@@ -20,4 +20,4 @@ done
 
 The scripts detects the GP2 volumes attached to your EMR Cluster and invoked the commands to switch them to GP3.
 
-Note: You can change but the script does not specify the GP3 throughput and IOPS settings so you get the baseline 125MB/s and 3000 IOPs )which is still more than GP2).
+Note: You can change it but the script does not specify the GP3 throughput and IOPS settings so you get the baseline 125MB/s and 3000 IOPs (which is more than GP2).
