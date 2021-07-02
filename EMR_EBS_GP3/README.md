@@ -1,5 +1,5 @@
 
-### Switch your EMR Cluster gp2 volumes to gp3
+### Switch EMR Cluster gp2 volumes to gp3
 
 >  gp3 is the next-generation general purpose SSD volumes for Amazon Elastic Block Store (Amazon EBS) that enable customers to provision performance independent of storage capacity and provides up to 20% lower price-point per GB than existing gp2 volumes. With gp3 volumes, customers can scale IOPS (input/output operations per second) and throughput without needing to provision additional block storage capacity, and pay only for the resources they need.  
 
