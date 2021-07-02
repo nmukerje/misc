@@ -8,11 +8,11 @@ Ensure that the EMR Cluster has GP2 volumes attached. Attach the bootstrap scrip
 ```
 #!/bin/bash
 
-non_gp3_volumes=$(aws ec2 describe-volumes --filters Name=attachment.instance-id,Values=`curl -s http://169.254.169.254/latest/meta-data/instance-id` | jq -r '.Volumes[] | select(.VolumeType=="gp2").VolumeId')
+gp2_volumes=$(aws ec2 describe-volumes --filters Name=attachment.instance-id,Values=`curl -s http://169.254.169.254/latest/meta-data/instance-id` | jq -r '.Volumes[] | select(.VolumeType=="gp2").VolumeId')
 
-for v in $non_gp3_volumes
+for v in $gp2_volumes
 do
-        echo "Switching $v to GP3."
+        echo "Switching $v from GP2 to GP3."
         echo "aws ec2 modify-volume --volume-type gp3 --volume-id $v"
 done
 
