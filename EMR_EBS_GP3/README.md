@@ -17,7 +17,7 @@ gp2_volumes=$(aws ec2 describe-volumes --filters Name=attachment.instance-id,Val
 for v in $gp2_volumes
 do
 	echo "Switching $v from gp2 to gp3."
-	# Switch them to gp3
+	# Switch the volumes to gp3
 	aws ec2 modify-volume --volume-type gp3 --volume-id $v
 done
 
