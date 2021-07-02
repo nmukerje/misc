@@ -20,6 +20,6 @@ done
 
 ``` 
 
-The scripts detects the gp2 volumes attached to your EMR Cluster nodes and invokes the commands to switch the volumes to gp3.
+The bootstrap script detects the gp2 volumes attached to your EMR Cluster nodes and invokes the commands to switch the volumes to gp3.
 
 Note: You can change the script if you need but this script does not override the baseline gp3 throughput and IOPS settings so you get 125MB/s and 3000 IOPs per volume that gp3 provides (which is the maximum IOPS for a gp2 volume).
