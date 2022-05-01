@@ -68,18 +68,21 @@ def build_pyspark_virtualenv(line, cell):
         
 
     """
+    # generate random directory name
     letters = string.ascii_lowercase
     dir_name = ''.join(random.choice(letters) for i in range(10)) 
+    
+    # read S3 location
     args = parse_argstring(build_pyspark_virtualenv, line)
     s3_location = args.s3_location
     
+    # read package ignoring comments
     command = ";".join([c for c in cell.splitlines() if not c.startswith("#")])
     package_names = command.split(';')
     print ("Packages to install : "+command)
     print ("Target S3 location : "+s3_location)
-    ret = subprocess.run(command, capture_output=True, shell=True)
-    print(ret.stdout.decode())
     
+    # Run pre-build commands
     pbar = tqdm(pre_cmds)
     for cmd in pbar:
         pbar.set_description(cmd[0])
@@ -97,6 +100,7 @@ def build_pyspark_virtualenv(line, cell):
             return
    
     for package_name in package_names:
+        # Run build commands
         pbar = tqdm(build_cmds)
         for cmd in pbar:
             pbar.set_description(cmd[0].format(package_name=package_name))
@@ -112,7 +116,8 @@ def build_pyspark_virtualenv(line, cell):
                 pbar.close()
                 print ("\nUnexpected Error from command. Please check output: \n\n"+(out.decode('utf-8')))
                 return
-
+            
+    # Run post build commands
     pbar = tqdm(post_cmds)
     for cmd in pbar:
         pbar.set_description(cmd[0])
@@ -129,6 +134,7 @@ def build_pyspark_virtualenv(line, cell):
             print ("\nUnexpected Error from command. Please check output: \n\n"+(out.decode('utf-8')))
             return
     
+    # Run clean up commands
     pbar = tqdm(clean_up_cmds)
     for cmd in pbar:
         pbar.set_description(cmd[0])
