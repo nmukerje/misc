@@ -151,7 +151,7 @@ def build_pyspark_virtualenv(line, cell):
             print ("\nUnexpected Error from command. Please check output: \n\n"+(out.decode('utf-8')))
             return
     
-    archive_location = f"{s3_location}venv-{dir_name}/venv_{dir_name}.tar.gz"
+    archive_location = f"{s3_location}/venv_{dir_name}.tar.gz"
     print (f"Archive Location : {archive_location}\n")
     print (f'For Spark on YARN, use config "spark.yarn.dist.archives":"{archive_location}"')
     print (f'For Spark on Kubernetes, use config "spark.archives":"{archive_location}"')
